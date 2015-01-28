@@ -11,12 +11,37 @@
     padding 0px
     margin 10px 0px 0px 0px
     li
-      margin-bottom 20px
       float left
       width 100%
+      position relative
       .name
         float left
         width 120px
         line-height @height
-      canvas
+      .canvas-container
         float left
+        position relative
+        width 880px
+        background lighten(#003366, 99%)
+        box-sizing content-box
+        a
+        .year-label
+          box-sizing border-box
+          position absolute
+          top 0px
+          left 0px
+          line-height 1.25em
+          color #003366
+          opacity 0.1
+          margin-left 10px
+          font-family 'Roboto', sans-serif
+          font-weight 900
+        &.new
+          padding-top 10px
+          padding-bottom 10px
+        &.old
+          padding-top 10px
+          padding-bottom 10px
+          background lighten(#acb5be, 99%)
+          .year-label
+            color #acb5be

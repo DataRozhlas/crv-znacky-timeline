@@ -14,6 +14,7 @@ externalStyles =
 
 externalData =
   "znacky": "#__dirname/data/znacka-rok.tsv"
+  "znacky_2004": "#__dirname/data/znacka-rok-2004.tsv"
 
 preferScripts = <[ postInit.js _loadData.js ../data.js init.js _loadExternal.js]>
 deferScripts = <[ kandidatka.js base.js ]>
