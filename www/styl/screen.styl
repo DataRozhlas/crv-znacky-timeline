@@ -6,6 +6,7 @@
   @import basics
 .ig
   overflow hidden
+  font-family 'Roboto', sans-serif
   ul
     list-style-type none
     padding 0px
@@ -14,16 +15,35 @@
       float left
       width 100%
       position relative
-      .name
+      .text
         float left
-        width 120px
-        line-height @height
+        width 100%
+        height 67px
+        .name
+          line-height 60px
+          font-size 30px
+          font-weight 700
+        .count
+        .age
+          position absolute
+          &.new
+            top 4px
+          &.old
+            top 35px
+        .count
+          left 250px
+        .age
+          right 0px
+
+
       .canvas-container
         float left
         position relative
-        width 880px
+        width 1000px
         background lighten(#003366, 99%)
         box-sizing content-box
+        canvas
+          float right
         a
         .year-label
           box-sizing border-box
@@ -34,7 +54,6 @@
           color #003366
           opacity 0.1
           margin-left 10px
-          font-family 'Roboto', sans-serif
           font-weight 900
         &.new
           padding-top 10px

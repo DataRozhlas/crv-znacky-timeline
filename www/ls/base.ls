@@ -12,50 +12,67 @@ rectFullSize = rectSize + 1
 znackaHeight = 200
 rectCapacity = 5000
 znacky_assoc = {}
-znacky = d3.tsv.parse dataNew, (row) ->
+getData = (row, years) ->
   data = name: row.znacka
   data.sum = 0
   data.yearMax = -Infinity
-  data.years = for year in yearsNew
+  data.years = for year in years
     cars = parseInt row[year], 10
+    if row.znacka == "VŠE" then cars /= 2
     data.sum += cars
     if data.yearMax < cars
       data.yearMax = cars
     cars
+  medianSum = 0
+  halfOfCars = data.sum / 2
+  data.medianAge = 0
+  for index in [data.years.length - 1 to 0 by -1]
+    cars = data.years[index]
+    medianSum += cars
+    if medianSum > halfOfCars
+      if row.znacka == "VŠE"
+        console.log data.medianAge
+      partOfYear = (medianSum - halfOfCars) / cars
+      data.medianAge += partOfYear
+      break
+    data.medianAge++
+
   data.height = Math.ceil data.yearMax / rectCapacity * rectFullSize
   data.height++ if data.height % 2
   data.height = 40 if data.height < 40
+  data
+
+znacky = d3.tsv.parse dataNew, (row) ->
+  data = getData row, yearsNew
   znacky_assoc[data.name] = data
   data
 
 d3.tsv.parse dataOld, (row) ->
-  data = name: row.znacka
-  data.sum = 0
-  data.yearMax = -Infinity
-  data.years = for year in yearsOld
-    cars = parseInt row[year], 10
-    data.sum += cars
-    if data.yearMax < cars
-      data.yearMax = cars
-    cars
-  data.height = Math.ceil data.yearMax / rectCapacity * rectFullSize
-  data.height++ if data.height % 2
-  data.height = 40 if data.height < 40
+  data = getData row, yearsOld
   if znacky_assoc[data.name]
     znacky_assoc[data.name].old = data
   data
 
 znacky.sort (a, b) -> b.sum - a.sum
-# znacky.length = 1
+# znacky.length = 5
+# znacky .= slice 1 2
 
 container = d3.select ig.containers.base
 list = container.append \ul .attr \class \list
   ..selectAll \li.item .data znacky
     ..enter!append \li
-      ..append \span
-        ..attr \class \name
-        ..html (.name)
-        ..style \line-height -> "#{(it.height + (it.old?height || 0)) + 40}px"
+      ..append \div
+        ..attr \class \text
+        ..append \span
+          ..attr \class \name
+          ..html (.name)
+        ..append \span
+          ..attr \class "count new"
+          ..html -> "Počet aut v roce 2014: <b>#{ig.utils.formatNumber it.sum}</b>"
+        ..append \span
+          ..attr \class "age new"
+          ..html -> "Střední věk v roce 2014: <b>#{ig.utils.formatNumber it.medianAge, 1} let</b>"
+
       ..append \div
         ..attr \class "canvas-container new"
         ..style \height -> "#{it.height}px"
@@ -67,8 +84,15 @@ list = container.append \ul .attr \class \list
         ..append \canvas
           ..attr \class \new
           ..attr \height -> it.height
-          ..attr \width 880
+          ..attr \width 768
     ..filter (-> it.old)
+      ..select \div.text
+        ..append \span
+          ..attr \class "count old"
+          ..html -> "Počet aut v roce 2004: <b>#{ig.utils.formatNumber it.old.sum}</b>"
+        ..append \span
+          ..attr \class "age old"
+          ..html -> "Střední věk v roce 2004: <b>#{ig.utils.formatNumber it.old.medianAge, 1} let</b>"
       ..append \div
         ..attr \class "canvas-container old"
         ..style \height -> "#{it.old.height}px"
@@ -80,7 +104,8 @@ list = container.append \ul .attr \class \list
         ..append \canvas
           ..attr \class \old
           ..attr \height -> it.old.height
-          ..attr \width 880
+          ..attr \width 768
+
 
 canvases = list.selectAll \canvas
   ..each (znacka) ->
