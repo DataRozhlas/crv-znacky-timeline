@@ -42,8 +42,13 @@ canvases = list.selectAll \canvas
     for year, yearIndex in years
       rects = Math.floor year / 5000
       remainder = year % 5000
-      lines = Math.floor remainder / 1000
-      remainder = remainder % 1000
+      lines = 0
+      twinLines = 0
+      if rects
+        twinLines = Math.floor remainder / 2000
+      else
+        lines = Math.floor remainder / 1000
+      remainder = remainder % 2000
       height = rects * rectFullSize
       leftOffset = yearWidth * yearIndex
       topOffset = (znacka.height - height) / 2
@@ -53,9 +58,7 @@ canvases = list.selectAll \canvas
           topOffset + i * rectFullSize
           rectSize
           rectSize
-      # ctx.stroke!
-      # ctx.strokeStyle = 'red'
-      if rects == 0 and (lines == 1 or lines == 3)
+      if lines == 1 or lines == 3
         topOffset += 1
       for i in [0 til lines]
         ii = Math.floor i / 2
@@ -67,8 +70,18 @@ canvases = list.selectAll \canvas
           top = topOffset + height + (ii) * 2
         ctx.moveTo leftOffset, top + d
         ctx.lineTo leftOffset + rectSize, top + d
+      for i in [0 til twinLines]
+        topTop = topOffset - (i * 2)
+        topBottom = topOffset + height + (i * 2)
+
+        ctx.moveTo leftOffset, topTop - 1.5
+        ctx.lineTo leftOffset + rectSize, topTop - 1.5
+
+        ctx.moveTo leftOffset, topBottom + + 0.5
+        ctx.lineTo leftOffset + rectSize, topBottom + + 0.5
+
       if rects == lines == 0
-        width = Math.round year / 2000 * rectSize
+        width = Math.round year / 1000 * rectSize
         if width
           ctx.moveTo leftOffset + rectSize / 2 - width / 2, topOffset - 0.5
           ctx.lineTo leftOffset + rectSize / 2 + width / 2, topOffset - 0.5
