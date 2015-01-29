@@ -107,11 +107,34 @@ body
             color #0
           &:after
             background #d
+            box-shadow 0px 0px 9px #e
         &.active
           .znacka
             color desaturate(ColorHeading, 30%)
           &:after
             background ColorHeading
+            box-shadow 0px 0px 5px lighten(ColorHeading, 50%)
 
-        &:last-child
+        &:last-of-type
           margin-bottom 0px
+      .arrow
+        position absolute
+        font-size 36px
+        width 25px
+        height 25px
+        line-height 22px
+        text-align center
+        text-decoration none !important
+        color #6
+        &:hover
+          color #0
+          text-shadow 0px 0px 5px #a
+        &.arrow-top
+          top -29px
+          left -6px
+          transform rotate(-90deg)
+        &.arrow-bottom
+          bottom -17px
+          left -5px
+          transform rotate(90deg)
+

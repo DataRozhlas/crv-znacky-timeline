@@ -22,6 +22,7 @@ ig.makeScrollable = (container) ->
   padGroup currentGroup, maxHeight - currentHeight
   allGroups.push currentGroup
   selector = container.append \div .attr \class \selector
+  currentIndex = 0
   selectorItems = selector.selectAll \a.item .data allGroups .enter!append \a
     ..attr \href \#
     ..append \span
@@ -34,9 +35,32 @@ ig.makeScrollable = (container) ->
       d3.event.preventDefault!
       list.style \transform "translate(0, -#{index * maxHeight}px)"
       selectorItems.classed \active (d, i) -> i is index
+      currentIndex := index
 
   selectorItems
-    .classed \active (d, i) -> i is 0
+    .classed \active (d, i) -> i is currentIndex
+  selector.append \a
+    ..attr \class 'arrow arrow-top'
+    ..html "›"
+    ..attr \href \#
+    ..on \click ~>
+      currentIndex--
+      currentIndex %%= allGroups.length
+      list.style \transform "translate(0, -#{currentIndex * maxHeight}px)"
+      selectorItems.classed \active (d, i) -> i is currentIndex
+
+
+  selector.append \a
+    ..attr \class 'arrow arrow-bottom'
+    ..html "›"
+    ..attr \href \#
+    ..on \click ~>
+      currentIndex++
+      currentIndex %%= allGroups.length
+      list.style \transform "translate(0, -#{currentIndex * maxHeight}px)"
+      selectorItems.classed \active (d, i) -> i is currentIndex
+
+
 
 
 
