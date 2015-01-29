@@ -43,7 +43,9 @@ ig.makeScrollable = (container) ->
     ..attr \class 'arrow arrow-top'
     ..html "›"
     ..attr \href \#
+    ..on \mousedown -> d3.event.preventDefault!
     ..on \click ~>
+      d3.event.preventDefault!
       currentIndex--
       currentIndex %%= allGroups.length
       list.style \transform "translate(0, -#{currentIndex * maxHeight}px)"
@@ -54,7 +56,9 @@ ig.makeScrollable = (container) ->
     ..attr \class 'arrow arrow-bottom'
     ..html "›"
     ..attr \href \#
+    ..on \mousedown -> d3.event.preventDefault!
     ..on \click ~>
+      d3.event.preventDefault!
       currentIndex++
       currentIndex %%= allGroups.length
       list.style \transform "translate(0, -#{currentIndex * maxHeight}px)"
