@@ -26,8 +26,6 @@ getData = (row, years) ->
     cars = data.years[index]
     medianSum += cars
     if medianSum > halfOfCars
-      if row.znacka == "VŠE"
-        console.log data.medianAge
       partOfYear = (medianSum - halfOfCars) / cars
       data.medianAge += partOfYear
       break
@@ -60,3 +58,4 @@ if ig.containers['znacky-all']
 if ig.containers['znacky-details']
   container = d3.select ig.containers['znacky-details']
   ig.drawHistogram container, znacky.slice 1
+  ig.makeScrollable container

@@ -25,7 +25,7 @@ ig.drawHistogram = (container, znacky) ->
           ..append \span
             ..attr \class \year-label
             ..html "2014"
-            ..style \font-size -> "#{it.height * 0.4}px"
+            ..style \font-size -> "#{Math.max it.height * 0.4, 26}px"
             ..style \line-height -> "#{it.height + 20}px"
           ..append \canvas
             ..attr \class \new
@@ -45,7 +45,7 @@ ig.drawHistogram = (container, znacky) ->
           ..append \span
             ..attr \class \year-label
             ..html "2004"
-            ..style \font-size -> "#{it.height * 0.4}px"
+            ..style \font-size -> "#{Math.max it.height * 0.4, 26}px"
             ..style \line-height -> "#{it.old.height + 20}px"
           ..append \canvas
             ..attr \class \old
