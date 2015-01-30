@@ -1,0 +1,67 @@
+&.ojetiny
+  width 1000px
+  height 120px
+  .item
+    width (1000px / 6)
+    height 120px
+    position relative
+    float left
+    .name
+      position absolute
+      bottom 0px
+      width 100%
+      text-align center
+    .half-line
+      position absolute
+      top 20px
+      left 50%
+      border-left 1px dotted #3
+      height 40px
+    .half-line-inner
+      position absolute
+      top 31px
+      left 50%
+      border-left 1px dotted lighten(#003366, 80%)
+      height 17px
+    .bar
+      width 80%
+      height 20px
+      position absolute
+      background #acb5be
+      top 30px
+      border-radius 4px
+      overflow hidden
+      border 1px solid #003366
+      box-shadow 0px 0px 5px lighten(#003366, 80%)
+      left 10%
+      .fill
+        background #003366
+        position absolute
+        left 0px
+        top 0px
+        height @height
+    .nove
+    .ojete
+      position absolute
+      top 55px
+      font-size 12px
+      line-height 14px
+    .nove
+      left 17px
+    .ojete
+      right 17px
+      text-align right
+    .popisek-nove
+    .popisek-ojete
+      position absolute
+      top 10px
+      text-transform uppercase
+      font-size 10px
+      font-weight 900
+    .popisek-nove
+      left 17px
+      color #003366
+    .popisek-ojete
+      right 17px
+      color darken(#acb5be, 40%)
+      text-align right

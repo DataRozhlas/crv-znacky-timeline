@@ -59,3 +59,8 @@ if ig.containers['znacky-details']
   container = d3.select ig.containers['znacky-details']
   ig.drawHistogram container, znacky.slice 1
   ig.makeScrollable container
+
+if ig.containers['ojetiny']
+  container = d3.select that
+  ig.ojetiny container
+
