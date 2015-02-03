@@ -41,6 +41,10 @@
         canvas
           float right
           padding-right 10px
+          z-index 4
+          position relative
+          &.old
+            padding-top 10px
         a
         .year-label
           box-sizing border-box
@@ -61,6 +65,62 @@
           background lighten(#acb5be, 99%)
           .year-label
             color #acb5be
+        .tick
+          position absolute
+          top 0px
+          bottom 50%
+          transform translate(0px, 150%)
+          width 1px
+          z-index 3
+          &:nth-child(1)
+            right (3px + 5 * 11px)
+          &:nth-child(2)
+            right (3px + 15 * 11px)
+          &:nth-child(3)
+            right (3px + 25 * 11px)
+          &:nth-child(4)
+            right (3px + 35 * 11px)
+          &:nth-child(5)
+            right (3px + 45 * 11px)
+          &:nth-child(6)
+            right (3px + 55 * 11px)
+          &:nth-child(7)
+            right (3px + 65 * 11px)
+          .value
+            position absolute
+            top 50%
+            transform translate(-50%, -50%)
+            left 0px
+            text-align center
+            font-size 12px
+            white-space nowrap
+          .age-up
+          .age-down
+            position absolute
+            top 50%
+            width 100px
+            left -50px
+            text-align center
+            font-size 10px
+          .age-up
+            transform translate(0, -120%)
+          .age-down
+            transform translate(0, 20%)
+          .border-top
+          .border-bottom
+            position absolute
+            border-left 1px dashed #c
+          .border-top
+            top 0px
+            bottom 65%
+          .border-bottom
+            bottom 0px
+            top 65%
+      &.no-new
+        .age-down
+        .border-bottom
+          display none
+
   .selector
     position absolute
     top 50%

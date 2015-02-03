@@ -4,9 +4,12 @@ ig.rectFullSize = rectFullSize = rectSize + 1
 ig.znackaHeight = znackaHeight = 200
 ig.rectCapacity = rectCapacity = 5000
 ig.drawHistogram = (container, znacky) ->
+  age = [0 to 6].map -> -5 + ((it + 1) * 10)
   list = container.append \ul .attr \class \list
     ..selectAll \li.item .data znacky
       ..enter!append \li
+        ..attr \class \item
+        ..classed \no-new -> it.old is void
         ..append \div
           ..attr \class \text
           ..append \span
@@ -21,12 +24,27 @@ ig.drawHistogram = (container, znacky) ->
 
         ..append \div
           ..attr \class "canvas-container new"
-          ..style \height -> "#{it.height}px"
+          ..style \height -> "#{it.height + 10}px"
           ..append \span
             ..attr \class \year-label
             ..html "2014"
             ..style \font-size -> "#{Math.max it.height * 0.4, 26}px"
-            ..style \line-height -> "#{it.height + 20}px"
+            ..style \line-height -> "#{it.height + 30}px"
+          ..append \div
+            ..attr \class \ticks
+            ..selectAll \.tick .data age .enter!append \div
+              ..attr \class \tick
+              ..append \div
+                ..attr \class \value
+                ..html -> it + if it == 65 then " let stará auta" else ""
+              ..append \div
+                ..attr \class \age-up
+                ..html -> (if it == 65 then "rok výroby " else "") + (2014 - it)
+              ..append \div
+                ..attr \class \age-down
+                ..html -> (if it == 65 then "rok výroby " else "") + (2004 - it)
+              ..append \div .attr \class \border-top
+              ..append \div .attr \class \border-bottom
           ..append \canvas
             ..attr \class \new
             ..attr \height -> it.height
@@ -46,7 +64,7 @@ ig.drawHistogram = (container, znacky) ->
             ..attr \class \year-label
             ..html "2004"
             ..style \font-size -> "#{Math.max it.height * 0.4, 26}px"
-            ..style \line-height -> "#{it.old.height + 20}px"
+            ..style \line-height -> "#{it.old.height + 30}px"
           ..append \canvas
             ..attr \class \old
             ..attr \height -> it.old.height
