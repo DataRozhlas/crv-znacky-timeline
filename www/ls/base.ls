@@ -48,9 +48,8 @@ d3.tsv.parse dataOld, (row) ->
   data
 
 znacky.sort (a, b) -> b.sum - a.sum
-# znacky.length = 5
-# znacky .= slice 1 2
-
+znacky .= filter ->
+  it.name not in <[VOZIDLO OLTCIT GM MINI SMART LADA MICRO AERO POLARIS]>
 if ig.containers['znacky-all']
   container = d3.select ig.containers['znacky-all']
   ig.drawHistogram container, [znacky.0]
