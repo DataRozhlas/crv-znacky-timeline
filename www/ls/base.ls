@@ -34,6 +34,7 @@ getData = (row, years) ->
   data.height = Math.ceil data.yearMax / rectCapacity * rectFullSize
   data.height++ if data.height % 2
   data.height = 40 if data.height < 40
+  data.correctSum = if row.znacka == "VŠE" then data.sum * 2 else data.sum
   data
 
 znacky = d3.tsv.parse dataNew, (row) ->

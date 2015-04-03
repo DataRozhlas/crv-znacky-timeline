@@ -17,7 +17,7 @@ ig.drawHistogram = (container, znacky) ->
             ..html (.name)
           ..append \span
             ..attr \class "count new"
-            ..html -> "Počet aut v roce 2014: <b>#{ig.utils.formatNumber it.sum}</b>"
+            ..html -> "Počet aut v roce 2014: <b>#{ig.utils.formatNumber it.correctSum}</b>"
           ..append \span
             ..attr \class "age new"
             ..html -> "Střední věk v roce 2014: <b>#{ig.utils.formatNumber it.medianAge, 1} let</b>"
@@ -53,7 +53,7 @@ ig.drawHistogram = (container, znacky) ->
         ..select \div.text
           ..append \span
             ..attr \class "count old"
-            ..html -> "Počet aut v roce 2004: <b>#{ig.utils.formatNumber it.old.sum}</b>"
+            ..html -> "Počet aut v roce 2004: <b>#{ig.utils.formatNumber it.old.correctSum}</b>"
           ..append \span
             ..attr \class "age old"
             ..html -> "Střední věk v roce 2004: <b>#{ig.utils.formatNumber it.old.medianAge, 1} let</b>"
