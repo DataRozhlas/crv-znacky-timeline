@@ -49,8 +49,20 @@ d3.tsv.parse dataOld, (row) ->
   data
 
 znacky.sort (a, b) -> b.sum - a.sum
-znacky .= filter ->
-  it.name not in <[VOZIDLO OLTCIT GM MINI SMART LADA MICRO AERO POLARIS]>
+blacklist =
+  "VOZIDLO"
+  "OLTCIT"
+  "GM"
+  "MINI"
+  "SMART"
+  "LADA"
+  "MICRO"
+  "AERO"
+  "POLARIS"
+  " -"
+
+znacky .= filter -> it.name not in blacklist
+
 if ig.containers['znacky-all']
   container = d3.select ig.containers['znacky-all']
   ig.drawHistogram container, [znacky.0]
