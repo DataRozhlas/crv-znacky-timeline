@@ -64,3 +64,7 @@ if ig.containers['ojetiny']
   container = d3.select that
   ig.ojetiny container
 
+if ig.containers['firemni']
+  container = d3.select that
+  ig.firemni container
+
