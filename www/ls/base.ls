@@ -62,6 +62,12 @@ blacklist =
   " -"
 
 znacky .= filter -> it.name not in blacklist
+hash = window.location.hash?substr 1
+if hash
+  for id, element of ig.containers
+    if id != hash
+      element.parentNode.removeChild element
+      ig.containers[id] = null
 
 if ig.containers['znacky-all']
   container = d3.select ig.containers['znacky-all']
