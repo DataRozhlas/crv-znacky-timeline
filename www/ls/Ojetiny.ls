@@ -21,6 +21,8 @@ data =
 
 ig.ojetiny = (container) ->
   format = ig.utils.formatNumber
+  container.append \h2
+    ..html "Koupená nová × ojetá vozidla v roce 2014"
   container.selectAll \div.item .data data .enter!append \div
     ..attr \class \item
     ..append \span .attr \class \name .html (.name)
