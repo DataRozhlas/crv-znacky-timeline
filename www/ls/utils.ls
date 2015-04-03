@@ -27,8 +27,11 @@ utils.formatNumber = (input, decimalPoints = 0) ->
   if decimalPoints
     wholePart = Math.floor input
     decimalPart = Math.abs input % 1
-    wholePart = insertThousandSeparator wholePart
     decimalPart = Math.round decimalPart * Math.pow 10, decimalPoints
+    if decimalPart >= 10
+      decimalPart -= 10
+      wholePart += 1
+    wholePart = insertThousandSeparator wholePart
     decimalPart = decimalPart.toString()
     while decimalPart.length < decimalPoints
       decimalPart = "0" + decimalPart
