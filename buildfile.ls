@@ -1,8 +1,6 @@
 require! fs
 require! async
-option 'testFile' 'File in (/lib or /test) to run test on' 'FILE'
-option 'name' 'Name to give to the project' 'NAME'
-option 'currentfile' 'Latest file that triggered the save' 'FILE'
+process.chdir __dirname
 
 externalScripts =
   # \https://samizdat.cz/tools/tooltip/v1.1.4.d3.js
@@ -13,20 +11,29 @@ externalStyles =
   ...
 
 externalData =
+  "style": "#__dirname/www/screen.css"
   "znacky": "#__dirname/data/znacka-rok.tsv"
   "znacky_2004": "#__dirname/data/znacka-rok-2004.tsv"
 
 preferScripts = <[ postInit.js _loadData.js ../data.js init.js _loadExternal.js]>
-deferScripts = <[ kandidatka.js base.js ]>
+deferScripts = <[ geoUtils.js base.js ]>
 develOnlyScripts = <[ _loadData.js _loadExternal.js]>
-gzippable = <[ www/index.html www/script.js ]>
+gzippable = <[ www/index.deploy.html www/script.deploy.js ]>
+safe-deployable =
+  "www/index.deploy.html"
+  "www/script.deploy.js"
+  "www/index.deploy.html.gz"
+  "www/script.deploy.js.gz"
+  "www/screen.deploy.css"
+
 build-styles = (options = {}, cb) ->
   require! cssmin
   (err, [external, local]) <~ async.parallel do
     * (cb) -> fs.readFile "#__dirname/www/external.css", cb
       (cb) -> prepare-stylus \screen, options, cb
   out = cssmin external + "\n\n\n" + local
-  <~ fs.writeFile "#__dirname/www/screen.css", out
+  filename = if options.deploy then "screen.deploy.css" else "screen.css"
+  <~ fs.writeFile "#__dirname/www/#filename", out
   cb?!
 
 prepare-stylus = (file, options, cb) ->
@@ -45,7 +52,7 @@ prepare-stylus = (file, options, cb) ->
   cb null css
 
 build-script = (file, cb) ->
-  require! child_process.exec
+  require! child_process:{exec}
   (err, result) <~ exec "lsc -o #__dirname/www/js -c #__dirname/#file"
   if err
     console.error err
@@ -53,7 +60,7 @@ build-script = (file, cb) ->
 
 build-all-scripts = (cb) ->
   console.log "Building scripts..."
-  require! child_process.exec
+  require! child_process:{exec}
   (err, result) <~ exec "lsc -o #__dirname/www/js -c #__dirname/www/ls"
   throw err if err
   console.log "Scripts built"
@@ -81,6 +88,7 @@ download-external-data = (cb) ->
     out[key] = data
     cb!
   <~ fs.writeFile "#__dirname/www/data.js", "window.ig.data = #{JSON.stringify out};"
+  # <~ fs.writeFile "#__dirname/www/data.js", "window.acceptData(#{JSON.stringify out});"
   console.log "Data combined"
   cb?!
 
@@ -95,7 +103,7 @@ download-external-styles = (cb) ->
 
 combine-scripts = (options = {}, cb) ->
   console.log "Combining scripts..."
-  require! uglify: "uglify-js"
+  require! "uglify-js":uglify
   (err, files) <~ fs.readdir "#__dirname/www/js"
   files .= filter -> it isnt 'script.js.map'
   if options.compression
@@ -110,7 +118,7 @@ combine-scripts = (options = {}, cb) ->
       indexB = -2 + -1 * preferScripts.indexOf b
 
     indexA - indexB
-  files .= map -> "./www/js/#it"
+  files .= map -> "#__dirname/www/js/#it"
   minifyOptions = {}
   if not options.compression
     minifyOptions
@@ -123,23 +131,31 @@ combine-scripts = (options = {}, cb) ->
   {map, code} = result
   if not options.compression
     code += "\n//@ sourceMappingURL=./js/script.js.map"
+    patt = __dirname.replace /\\/g '\\\\\\\\'
+    map .= replace do
+      new RegExp do
+        patt
+        'g'
+      ''
     fs.writeFile "#__dirname/www/js/script.js.map", map
   else
     external = fs.readFileSync "#__dirname/www/external.js"
     code = external + "\n;\n" + code
-
-  fs.writeFileSync "#__dirname/www/script.js", code
+  if options.deploy
+    fs.writeFileSync "#__dirname/www/script.deploy.js", code
+  else
+    fs.writeFileSync "#__dirname/www/script.js", code
   console.log "Scripts combined"
   cb? err
 
 run-script = (file) ->
-  require! child_process.exec
+  require! child_process:{exec}
   (err, stdout, stderr) <~ exec "lsc #__dirname/#file"
   console.error stderr if stderr
   console.log stdout
 
 test-script = (file) ->
-  require! child_process.exec
+  require! child_process:{exec}
   [srcOrTest, ...fileAddress] = file.split /[\\\/]/
   fileAddress .= join '/'
   <~ build-all-server-scripts
@@ -148,7 +164,7 @@ test-script = (file) ->
   niceTestOutput stdout, stderr, cmd
 
 build-all-server-scripts = (cb) ->
-  require! child_process.exec
+  require! child_process:{exec}
   (err, stdout, stderr) <~ exec "lsc -o #__dirname/lib -c #__dirname/src"
   throw stderr if stderr
   cb? err
@@ -161,7 +177,7 @@ relativizeFilename = (file) ->
   file .= substr 1
 
 gzip-files = (cb) ->
-  require! child_process.exec
+  require! child_process:{exec}
   console.log "Zopfli-ing..."
   (err, stdout, stderr) <~ exec "zopfli #{gzippable.join ' '}"
   console.log "Zopflied"
@@ -179,16 +195,26 @@ copy-index = ->
   fs.createReadStream "#__dirname/www/_index.html" .pipe do
     fs.createWriteStream "#__dirname/www/index.html"
 
+deploy-files = (cb) ->
+  console.log "Deploying files..."
+  <~ async.each safe-deployable, (file, cb) ->
+    fs.rename do
+      "#__dirname/#file"
+      "#__dirname/#{file.replace '.deploy' ''}"
+      cb
+  cb?!
+
 inject-index = (cb) ->
-  require! child_process.exec
-  require! htmlmin: 'html-minifier'
+  require! child_process:{exec}
+  require! 'html-minifier':htmlmin
   files =
     "#__dirname/www/_index.html"
-    "#__dirname/www/script.js"
-    "#__dirname/www/screen.css"
+    "#__dirname/www/script.deploy.js"
+    "#__dirname/www/screen.deploy.css"
   (err, [index, script, style]) <~ async.map files, fs.readFile
+  console.log err if err
   index .= toString!
-  index .= replace '<script src="script.js" charset="utf-8" async></script>', "<script>#{script.toString!}</script>"
+  index .= replace '<script src="script.js" charset="utf-8" async></script>', -> "<script>#{script.toString!}</script>"
   index .= replace '<link rel="stylesheet" href="screen.css">', "<style>#{style.toString!}</style>"
   index += '<script src="https://samizdat.cz/tools/analytics/0.0.1.js" charset="utf-8" async></script>'
   htmlminConfig =
@@ -199,71 +225,9 @@ inject-index = (cb) ->
     minifyJS: 1
     minifyCSS: 1
   index = htmlmin.minify index, htmlminConfig
-  <~ fs.writeFile "#__dirname/www/index.html", index
+  <~ fs.writeFile "#__dirname/www/index.deploy.html", index
   cb?!
 
-task \build ->
-  download-external-scripts!
-  <~ download-external-styles
-  # build-styles compression: no
-  <~ build-all-scripts
-  copy-index!
-  combine-scripts compression: no
-
-task \deploy ->
-  <~ async.parallel do
-    * download-external-scripts
-      download-external-data
-      download-external-styles
-      # build-all-server-scripts!
-      # refresh-manifest!
-  <~ build-styles compression: yes
-  <~ build-all-scripts
-  <~ combine-scripts compression: yes
-  <~ inject-index!
-  <~ gzip-files!
-
-task \build-styles ->
-  copy-index!
-  t0 = Date.now!
-  <~ build-styles compression: no
-  <~ download-external-data!
-
-task \build-script ({currentfile}) ->
-  copy-index!
-  file = relativizeFilename currentfile
-  isServer = \src/ == file.substr 0, 4
-  isScript = \srv/ == file.substr 0, 4
-  isTest = \test/ == file.substr 0, 5
-  if isServer or isTest
-    test-script file
-  else if isScript
-    run-script file
-  else
-    (err) <~ build-script file
-    combine-scripts compression: no if not err
-
-task \name ({name}) ->
-  name ?= process.cwd!split /[/\\]/ .pop!
-  fs.readFile "./package.json", (err, data) ->
-    data = JSON.parse data.toString!
-    data.name = name
-    fs.writeFile "./package.json", JSON.stringify data, true, 2
-  fs.readdir '.', (err, files) ->
-    files.forEach (file) ->
-      [...names, suffix] = file.split '.'
-      oldname = names.join '.'
-      if suffix in <[sublime-project sublime-workspace]>
-        fs.rename file, file.replace oldname, name
-  fs.readFile "./www/ls/init.ls", (err, data) ->
-    return if err
-    data .= toString!
-    data .= replace /projectName : "(.*?)"/ 'projectName : "' + name + '"'
-    fs.writeFile "./www/ls/init.ls" data
-  fs.readFile "./www/_index.html", (err, data) ->
-    return if err
-    data = data.toString!replace /<title>(.*?)<\/title>/ "<title>#name</title>"
-    fs.writeFile "./www/_index.html" data
 
 niceTestOutput = (test, stderr, cmd) ->
   lines         = test.split "\n"
@@ -295,3 +259,81 @@ niceTestOutput = (test, stderr, cmd) ->
       console.log test
       console.log stderr
       console.log cmd
+
+
+[lsc, thisFile, task, ...args] = process.argv
+switch task
+| \build
+  download-external-scripts!
+  <~ download-external-styles
+  # build-styles compression: no
+  <~ build-all-scripts
+  copy-index!
+  combine-scripts compression: no
+
+| \deploy
+  <~ build-styles compression: yes deploy: yes
+  <~ async.parallel do
+    * download-external-scripts
+      download-external-data
+      download-external-styles
+      # build-all-server-scripts!
+      # refresh-manifest!
+  <~ build-all-scripts
+  <~ combine-scripts compression: yes deploy: yes
+  <~ inject-index!
+  <~ gzip-files!
+  <~ deploy-files!
+
+| \build-styles
+  copy-index!
+  t0 = Date.now!
+  <~ build-styles compression: no
+  <~ download-external-data!
+
+| \build-script
+  currentfile = args[0]
+  copy-index!
+  file = relativizeFilename currentfile
+  isServer = \src/ == file.substr 0, 4
+  isScript = \srv/ == file.substr 0, 4
+  isTest = \test/ == file.substr 0, 5
+  isWww = \www/ == file.substr 0, 4
+  if isServer or isTest
+    test-script file
+  else if isScript
+    run-script file
+  else if isWww
+    (err) <~ build-script file
+    combine-scripts compression: no if not err
+  else
+    <~ async.parallel do
+      * download-external-scripts
+        download-external-data
+        download-external-styles
+    <~ build-styles
+    <~ build-all-scripts
+    <~ combine-scripts
+
+
+| \name
+  name = args[0] || process.cwd!split /[/\\]/ .pop!
+  fs.readFile "./package.json", (err, data) ->
+    data = JSON.parse data.toString!
+    data.name = name
+    fs.writeFile "./package.json", JSON.stringify data, true, 2
+  fs.readdir '.', (err, files) ->
+    files.forEach (file) ->
+      [...names, suffix] = file.split '.'
+      oldname = names.join '.'
+      if suffix in <[sublime-project sublime-workspace]>
+        fs.rename file, file.replace oldname, name
+  fs.readFile "./www/ls/init.ls", (err, data) ->
+    return if err
+    data .= toString!
+    data .= replace /projectName : "(.*?)"/ 'projectName : "' + name + '"'
+    fs.writeFile "./www/ls/init.ls" data
+  fs.readFile "./www/_index.html", (err, data) ->
+    return if err
+    data = data.toString!replace /<title>(.*?)<\/title>/ "<title>#name</title>"
+    fs.writeFile "./www/_index.html" data

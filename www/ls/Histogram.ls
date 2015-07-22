@@ -14,7 +14,11 @@ ig.drawHistogram = (container, znacky) ->
           ..attr \class \text
           ..append \span
             ..attr \class \name
-            ..html (.name)
+            ..html ->
+              if it.name != "VŠE"
+                it.name
+              else
+                "Celý vozový park"
           ..append \span
             ..attr \class "count new"
             ..html -> "Počet aut v roce 2014: <b>#{ig.utils.formatNumber it.correctSum}</b>"

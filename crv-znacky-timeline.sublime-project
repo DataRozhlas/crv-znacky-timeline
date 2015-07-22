@@ -11,7 +11,7 @@
   [
     {
       "name": "LiveScripts",
-      "cmd": ["slake.cmd", "-c", "$file", "build-script"],
+      "cmd": ["lsc.cmd", "$project_path/buildfile.ls", "build-script", "$file"],
       // "cmd": ["lsc.cmd", "$file"],
       // "cmd": ["lsc.cmd", "-o", "../js", "-c", "$file"],
       "file_regex": "^(...*?):([0-9]*):?([0-9]*)",
@@ -22,19 +22,19 @@
           "cmd": ["lsc.cmd", "-cp" ,"$file"]
         }, {
           "name": "Deploy",
-          "cmd": ["slake.cmd", "-c", "$file", "deploy"]
+          "cmd": ["lsc.cmd", "$project_path/buildfile.ls", "deploy"],
         }
       ]
     }, {
       "name": "Stylus",
-      "cmd": ["slake.cmd", "-c", "$file", "build-styles"],
+      "cmd": ["lsc.cmd", "$project_path/buildfile.ls", "build-styles"],
       // "cmd": ["stylus.cmd", "-o", "../css/", "./screen.styl"],
       "file_regex": "^(...*?):([0-9]*):?([0-9]*)",
       "selector": "source.stylus",
       "variants": [
         {
           "name": "Deploy",
-          "cmd": ["slake.cmd", "-c", "$file", "deploy"]
+          "cmd": ["lsc.cmd", "$project_path/buildfile.ls", "deploy"],
         }
       ]
     }
