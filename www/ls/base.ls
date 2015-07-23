@@ -71,18 +71,22 @@ if hash
 
 if ig.containers['znacky-all']
   container = d3.select ig.containers['znacky-all']
+    ..html ''
   ig.drawHistogram container, [znacky.0]
 
 if ig.containers['znacky-details']
   container = d3.select ig.containers['znacky-details']
+    ..html ''
   ig.drawHistogram container, znacky.slice 1
   ig.makeScrollable container
 
 if ig.containers['ojetiny']
   container = d3.select that
+    ..html ''
   ig.ojetiny container
 
 if ig.containers['firemni']
   container = d3.select that
+    ..html ''
   ig.firemni container
 
